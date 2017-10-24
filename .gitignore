@@ -1,0 +1,11 @@
+# Matlab autosave files
+*.asv
+
+# OS X stores
+*.DS_Store
+
+# Big resources directory
+Resources/
+
+# Scan image utilities, probably shouldn’t share this
+ScanImageUtils/
