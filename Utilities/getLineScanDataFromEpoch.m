@@ -1,5 +1,7 @@
 function res = getLineScanDataFromEpoch(epoch,dataFolder)
-
+if nargin < 2
+   dataFolder = '/Users/mhturner/Dropbox/CurrentData/CalciumImaging/'; 
+end
 cellName = char(epoch.cell.label);
 dayFolder = cellName(1:8); %yyyymmdd
 imagingDataFolder = [dataFolder, dayFolder,'/'];
@@ -18,13 +20,15 @@ traceLen = size(pmtData,1) / noROIs;
 
 channelData = [];
 for ii = 1:noROIs %each ROI
-    traceStart = traceLen * (ii-1) + 1;
-    traceEnd = traceLen * ii;
+    traceStart = round(traceLen * (ii-1) + 1);
+    traceEnd = round(traceLen * ii);
     for cc = 1:noChannels %each channel
         channelData(ii,:,cc) = mean(squeeze(pmtData(traceStart:traceEnd,cc,:)));
     end
 end
+frameTimes = (1:header.numFrames) .* header.frameDuration;
 
 res.channelData = channelData;
-
+res.frameTimes = frameTimes; %sec
+res.numFrames = header.numFrames;
 end

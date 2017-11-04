@@ -21,16 +21,17 @@ tree = riekesuite.analysis.buildTree(list, {cellTypeSplit_java,'cell.label',...
     protocolIDSplit_java,...
     'protocolSettings(scanNumber)'});
 gui = epochTreeGUI(tree);
-
+gui.showImagingTraces = true;
 %%
 currentNode = gui.getSelectedEpochTreeNodes{1};
 
-res = getLineScanDataFromEpoch(currentNode.epochList.elements(1),dataFolder);
+res = getLineScanDataFromEpoch(currentNode.epochList.elements(1));
 
 figure(30); clf; hold on;
-plot(res.channelData(1,:,1),'r');
-plot(res.channelData(2,:,1),'g');
-plot(res.channelData(3,:,1),'b');
+plot(res.frameTimes,res.channelData(1,:,1),'r');
+plot(res.frameTimes,res.channelData(2,:,1),'g');
+plot(res.frameTimes,res.channelData(3,:,1),'b');
+plot(res.frameTimes,res.channelData(4,:,1),'k');
 
 
 
