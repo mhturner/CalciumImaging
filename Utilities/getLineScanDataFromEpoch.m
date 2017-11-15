@@ -1,6 +1,9 @@
-function res = getLineScanDataFromEpoch(epoch,dataFolder)
+function res = getLineScanDataFromEpoch(epoch,offsetCorrect,dataFolder)
 if nargin < 2
-   dataFolder = '/Users/mhturner/Dropbox/CurrentData/CalciumImaging/'; 
+    offsetCorrect = true;
+    dataFolder = '/Users/mhturner/Dropbox/CurrentData/CalciumImaging/';
+elseif nargin < 3
+    dataFolder = '/Users/mhturner/Dropbox/CurrentData/CalciumImaging/';
 end
 cellName = char(epoch.cell.label);
 dayFolder = cellName(1:8); %yyyymmdd
@@ -27,6 +30,13 @@ for ii = 1:noROIs %each ROI
     end
 end
 frameTimes = (1:header.numFrames) .* header.frameDuration;
+offsetFrames = frameTimes < 0.15; %first 150 msec;
+if (offsetCorrect)
+    for cc = 1:noChannels
+        offset = mean(mean(channelData(:,offsetFrames,cc)));
+        channelData(:,:,cc) = channelData(:,:,cc) - offset;
+    end
+end
 
 res.channelData = channelData;
 res.frameTimes = frameTimes; %sec

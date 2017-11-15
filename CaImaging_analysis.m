@@ -6,7 +6,7 @@ dataFolder = '/Users/mhturner/Dropbox/CurrentData/CalciumImaging/';
 
 import auimodel.*
 import vuidocument.*
-cd('~/Dropbox/RiekeLab/Analysis/MATLAB/RFSurround/')
+cd('~/Dropbox/RiekeLab/Analysis/MATLAB/CalciumImaging/')
 %% Large imaging tree
 list = loader.loadEpochList([dataFolder,'CaImaging.mat'],dataFolder);
 
