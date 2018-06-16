@@ -24,14 +24,58 @@ gui = epochTreeGUI(tree);
 gui.showImagingTraces = true;
 %%
 currentNode = gui.getSelectedEpochTreeNodes{1};
+scansToPull = 51:56;
+noChannels = 4;
+channelData = [];
+for scanNo = 1:length(scansToPull)
 
-res = getLineScanDataFromEpoch(currentNode.epochList.elements(1));
+    currentScanEpoch = currentNode.childBySplitValue(scansToPull(scanNo));
+    res = getLineScanDataFromEpoch(currentScanEpoch.epochList.firstValue);
+    for cc = 1:noChannels
+        channelData(cc,:,scanNo) = res.channelData(cc,:,1);
+    end
+end
+%mean over all trials
+meanROIResp = mean(channelData,3);
 
-figure(30); clf; hold on;
-plot(res.frameTimes,res.channelData(1,:,1),'r');
-plot(res.frameTimes,res.channelData(2,:,1),'g');
-plot(res.frameTimes,res.channelData(3,:,1),'b');
-plot(res.frameTimes,res.channelData(4,:,1),'k');
+%covert to deltaF/F and plot
+baselineStart = 0.5; baselineEnd = 1.5;
+frameStart = find(res.frameTimes>baselineStart,1);
+temp = find(res.frameTimes<baselineEnd);
+frameEnd = temp(end);
+figure(5); clf;
+colors = pmkmp(noChannels);
+for cc = 1:noChannels
+    rawTrace = meanROIResp(cc,:);
+    bl = mean(rawTrace(frameStart:frameEnd));
+    blCorrected = (rawTrace - bl) / bl;
+    subplot(211); hold on;
+    plot(res.frameTimes(frameStart:end), blCorrected(frameStart:end), 'Color',colors(cc,:))
+end
+subplot(212);
+voltageRes = getMeanResponseTrace(currentNode.childBySplitValue(54).epochList,'iClamp');
+startInd = find(res.frameTimes(frameStart) == voltageRes.timeVector);
+
+plot(voltageRes.timeVector(startInd:end),voltageRes.mean(startInd:end),'k')
+%%
+dataFolder = '/Users/mhturner/Dropbox/CurrentData/CalciumImaging/20180221/';
+[header, Aout, imgInfo] = scanimage.util.opentif([dataFolder,'c2_00048.tif'],...
+    'channel',2);
+
+meanImg = mean(squeeze(Aout),3);
+figure(6); clf; imagesc(meanImg); colormap(gray); axis image; axis square; axis off;
+brighten(0.35)
+
+for cc = 1:4
+    currentCenter_rel = res.roiGroup.rois(cc).scanfields.centerXY ./ (2*pi); %rel to center, as fraction of xydim
+    currentSize_rel = res.roiGroup.rois(cc).scanfields.sizeXY ./ (2*pi);
+    currentCenter_abs = currentCenter_rel .* 256 + 128;
+    disp(currentCenter_rel)
+    figure(6); hold on;
+    plot(res.roiGroup.rois(cc).scanfields.transformParams.offsetX,...
+        res.roiGroup.rois(cc).scanfields.transformParams.offsetY,...
+        'rx')
+end
 
 
 

@@ -37,7 +37,7 @@ if (offsetCorrect)
         channelData(:,:,cc) = channelData(:,:,cc) - offset;
     end
 end
-
+res.roiGroup = roiGroup;
 res.channelData = channelData;
 res.frameTimes = frameTimes; %sec
 res.numFrames = header.numFrames;
